@@ -1,0 +1,3 @@
+payToken='1661751239:TEST:1150674438'
+token="6062877363:AAH2j0hm1SOuS0Lejl8LQEm2JxNxT6gAM34"
+botName="Kryglik_maker_bot"
