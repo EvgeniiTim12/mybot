@@ -55,12 +55,30 @@ async def last_table():
         con.execute("DROP TABLE IF EXISTS new_table")
         con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT) ")
         result=con.execute("SELECT COUNT(id) as count FROM users").fetchone()[0]+1
-        for i in range(1,result):
-            name = con.execute(f"SELECT user_id FROM 'users' WHERE id = {i}").fetchone()[0]
-            name_refer = con.execute(f"SELECT refer_id FROM 'users' WHERE id = {i}").fetchone()[0]
-            date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
-            con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal) VALUES (?,?,?)",
-            (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),))
+        i=0
+        while(i<result):
+            try:
+                name = con.execute(f"SELECT user_id FROM 'users' WHERE id = {i}").fetchone()[0]
+                name_refer = con.execute(f"SELECT refer_id FROM 'users' WHERE id = {i}").fetchone()[0]
+                date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
+                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal) VALUES (?,?,?)",
+                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),))
+            except TypeError as ex:
+                max=con.execute("SELECT MAX(id) FROM users").fetchone()[0]
+                while(i<max):
+                    i+=1
+                    print(i)
+                    try:
+                        name = con.execute(f"SELECT user_id FROM 'users' WHERE id = {i}").fetchone()[0]
+                        name_refer = con.execute(f"SELECT refer_id FROM 'users' WHERE id = {i}").fetchone()[0]
+                        date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
+                        con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal) VALUES (?,?,?)",
+                        (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),))
+                    except TypeError:
+                        pass
+            i+=1
+
+
 
             
 
