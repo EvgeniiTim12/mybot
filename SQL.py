@@ -81,7 +81,7 @@ async def last_table():
                 date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
                 card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
                 con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card) VALUES (?,?,?,?)",
-                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),card,))
+                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),str(card),))
             except TypeError:
                 pass
             i+=1
@@ -140,7 +140,7 @@ def mama():
                 card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
                 if(card is None):
                     card="None"
-                values=[name,name_refer,date,card]
+                values=[name,name_refer,date,str(card)]
                 test_values.append(values)
             except TypeError:
                 pass
