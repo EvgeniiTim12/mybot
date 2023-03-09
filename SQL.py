@@ -15,7 +15,7 @@ from google.oauth2.credentials import Credentials
 connection=sqlite3.connect("server.db")
 sql=connection.cursor()
 print("connected")
-sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT) ")
+sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card INTEGER) ")
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
@@ -55,11 +55,23 @@ def update_lang(user_id,new):
     with sql.connection as con:
         con.execute(f"UPDATE langue SET lang='{new}' WHERE id={user_id}")
 
+def update_card(user_id,card):
+    with sql.connection as con:
+        con.execute(f"UPDATE users SET refer_card='{card}' WHERE user_id={user_id}")
+
+def get_card(user_id):
+    with sql.connection as con:
+        result = con.execute(f"SELECT refer_card FROM 'users' WHERE user_id = {user_id}").fetchone()[0]
+        if result is None:
+            return "None"
+        else:
+            return result
+
 
 async def last_table():
     with sql.connection as con:
         con.execute("DROP TABLE IF EXISTS new_table")
-        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT) ")
+        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card INTEGER) ")
         i=0
         max=con.execute("SELECT MAX(id) FROM users").fetchone()[0]
         while(i<=max):
@@ -67,8 +79,9 @@ async def last_table():
                 name = con.execute(f"SELECT user_id FROM 'users' WHERE id = {i}").fetchone()[0]
                 name_refer = con.execute(f"SELECT refer_id FROM 'users' WHERE id = {i}").fetchone()[0]
                 date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
-                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal) VALUES (?,?,?)",
-                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),))
+                card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
+                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card) VALUES (?,?,?,?)",
+                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),card,))
             except TypeError:
                 pass
             i+=1
@@ -112,9 +125,9 @@ class GoogleSheet:
         
 def mama():
     gs = GoogleSheet()
-    test_range = 'testlist!A1:C'
+    test_range = 'testlist!A1:D'
     test_values = []
-    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal"]
+    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal","card_number"]
     test_values.append(startlist)
     with sql.connection as con:
         i=0
@@ -124,7 +137,10 @@ def mama():
                 name = con.execute(f"SELECT kto_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 name_refer = con.execute(f"SELECT kogo_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 date=con.execute(f"SELECT koli_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
-                values=[name,name_refer,date]
+                card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
+                if(card is None):
+                    card="None"
+                values=[name,name_refer,date,card]
                 test_values.append(values)
             except TypeError:
                 pass

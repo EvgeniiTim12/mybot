@@ -5,7 +5,14 @@ transl={
         "Ви зареєстровані успішно":"You are registered successfully",
         "Привіт!":"Hi!",
         "Ваша ссилка:":"Your link:",
-        "К-сть рефералов:":"Number of referrals:"
+        "К-сть рефералов:":"Number of referrals:",
+        "Некоректний номер картки, /cancel для скасування":"Incorrect card number, /cancel to cancel",
+        "Введіть карту":"Enter card",
+        "Карта успішно додана":"Card successfully added",
+        "Видалено":"Deleted",
+        "Скасовано":"Canceled",
+        "Додано":"Added",
+        "Номер карти:":"Card number:"
 
     }
 }
