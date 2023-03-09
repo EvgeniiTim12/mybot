@@ -88,7 +88,8 @@ async def aaad(message: types.Message):
 async def tttt(message: types.Message):
     userid=message.from_user.id
     text=message.text
-    if(text.isdigit() and len(text)==11):
+    text=text.replace(' ','')
+    if(text.isdigit() and len(text)==16):
         SQL.update_card(message.from_user.id,text)
         await Form.start.set()
         await message.reply(trans("Карта успішно додана",SQL.get_lang(userid))+" /start")
