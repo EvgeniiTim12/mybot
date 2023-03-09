@@ -114,6 +114,8 @@ def mama():
     gs = GoogleSheet()
     test_range = 'testlist!A1:C'
     test_values = []
+    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal"]
+    test_values.append(startlist)
     with sql.connection as con:
         i=0
         max=con.execute("SELECT MAX(id) FROM new_table").fetchone()[0]
