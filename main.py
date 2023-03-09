@@ -201,11 +201,13 @@ async def aaad(message: types.Message):
 @dp.message_handler(commands=['remove_admin'])
 async def aaad(message: types.Message):
     user=message.from_user.id
-    if(SQL.check_admin(user)):
-        admin=message.text[14:]
-        if(SQL.check_admin(admin)):
-            SQL.remove_admin(admin)
-            await message.reply("Видалено")
+    admin=message.text[14:]
+    if(admin != user):
+        if(SQL.check_admin(user)):
+            
+            if(SQL.check_admin(admin)):
+                SQL.remove_admin(admin)
+                await message.reply("Видалено")
 
         
 if __name__== '__main__':
