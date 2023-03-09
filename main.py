@@ -138,7 +138,8 @@ async def cuu(callback:types.CallbackQuery):
             SQL.add_lang(user_id)
         await callback.message.edit_text((trans("Ваша ссилка:",SQL.get_lang(user_id))+
             f"https://t.me/{co.botName}?start={user_id}\n"
-            +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id))),reply_markup=markups.reloading)
+            +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id)))
+            +"\n"+trans("Номер карти:",SQL.get_lang(user_id))+str(SQL.get_card(user_id)),reply_markup=markups.markuprof)
         await asyncio.sleep(1)
         await callback.message.edit_reply_markup(reply_markup=markups.markuprof)
         await callback.answer()
