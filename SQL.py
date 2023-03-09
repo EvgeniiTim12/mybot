@@ -15,7 +15,7 @@ from google.oauth2.credentials import Credentials
 connection=sqlite3.connect("server.db")
 sql=connection.cursor()
 print("connected")
-sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card INTEGER) ")
+sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
@@ -71,7 +71,7 @@ def get_card(user_id):
 async def last_table():
     with sql.connection as con:
         con.execute("DROP TABLE IF EXISTS new_table")
-        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card INTEGER) ")
+        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card TEXT) ")
         i=0
         max=con.execute("SELECT MAX(id) FROM users").fetchone()[0]
         while(i<=max):
