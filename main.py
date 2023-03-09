@@ -89,7 +89,6 @@ async def tttt(message: types.Message):
     userid=message.from_user.id
     text=message.text
     text=text.replace(' ','')
-    print(text)
     if(text.isdigit() and len(text)==16):
         SQL.update_card(message.from_user.id,text)
         await Form.start.set()
