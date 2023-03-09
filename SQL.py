@@ -15,16 +15,16 @@ from google.oauth2.credentials import Credentials
 connection=sqlite3.connect("server.db")
 sql=connection.cursor()
 print("connected")
-sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card TEXT) ")
+sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card TEXT,idfor TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
 def add_user(user_id,refer_id=None):
     with sql.connection as con:
         if(refer_id!=None):
-            con.execute("INSERT INTO users (user_id,refer_id,date) VALUES (?,?,?)",(user_id,refer_id,datetime.datetime.now(),))
+            con.execute("INSERT INTO users (user_id,refer_id,date,idfor) VALUES (?,?,?,?)",(user_id,refer_id,datetime.datetime.now(),user_id,))
         else:
-            con.execute("INSERT INTO users (user_id,date) VALUES (?,?)",(user_id,datetime.datetime.now(),))
+            con.execute("INSERT INTO users (user_id,date,idfor) VALUES (?,?,?)",(user_id,datetime.datetime.now(),user_id,))
 
 def check_reg(userid):
     with sql.connection as con:
@@ -71,7 +71,7 @@ def get_card(user_id):
 async def last_table():
     with sql.connection as con:
         con.execute("DROP TABLE IF EXISTS new_table")
-        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card TEXT) ")
+        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card TEXT,idfor TEXT) ")
         i=0
         max=con.execute("SELECT MAX(id) FROM users").fetchone()[0]
         while(i<=max):
@@ -80,8 +80,9 @@ async def last_table():
                 name_refer = con.execute(f"SELECT refer_id FROM 'users' WHERE id = {i}").fetchone()[0]
                 date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
                 card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
-                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card) VALUES (?,?,?,?)",
-                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),str(card),))
+                idfor=con.execute(f"SELECT idfor FROM 'users' WHERE id = {i}").fetchone()[0]
+                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card,idfor) VALUES (?,?,?,?,?)",
+                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),str(card),str(idfor),))
             except TypeError:
                 pass
             i+=1
@@ -125,9 +126,9 @@ class GoogleSheet:
         
 def mama():
     gs = GoogleSheet()
-    test_range = 'testlist!A1:D'
+    test_range = 'testlist!A1:E'
     test_values = []
-    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal","card_number"]
+    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal","card_number","delete id"]
     test_values.append(startlist)
     with sql.connection as con:
         i=0
@@ -137,10 +138,11 @@ def mama():
                 name = con.execute(f"SELECT kto_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 name_refer = con.execute(f"SELECT kogo_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 date=con.execute(f"SELECT koli_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
-                card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
+                card=con.execute(f"SELECT refer_card FROM 'new_table' WHERE id = {i}").fetchone()[0]
+                idfor=con.execute(f"SELECT idfor FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 if(card is None):
                     card="None"
-                values=[name,name_refer,date,str(card)]
+                values=[name,name_refer,date,str(card),idfor]
                 test_values.append(values)
             except TypeError:
                 pass
@@ -168,7 +170,9 @@ def remove_admin(user_id):
     with sql.connection as con:
         con.execute(f"DELETE FROM admins WHERE id={user_id}")
 
-
+def remove_user(user_id):
+    with sql.connection as con:
+        con.execute(f"DELETE FROM users WHERE user_id={user_id}")
 
 
 def close():

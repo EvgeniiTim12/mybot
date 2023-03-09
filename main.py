@@ -255,6 +255,18 @@ async def aaad(message: types.Message):
             if(SQL.check_admin(admin)):
                 SQL.remove_admin(admin)
                 await message.reply(trans("Видалено",SQL.get_lang(user)))
-        
+
+
+@dp.message_handler(commands=['remove_user'],state="*")
+async def aaad(message: types.Message):
+    await Form.start.set()
+    user=message.from_user.id
+    admin=message.text[13:]
+    if(SQL.check_admin(user)):
+        if(SQL.check_admin(admin)):
+            SQL.remove_user(admin)
+            await message.reply(trans("Видалено",SQL.get_lang(user)))
+
+
 if __name__== '__main__':
     executor.start_polling(dp)
