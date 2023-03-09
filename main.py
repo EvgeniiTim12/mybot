@@ -12,16 +12,17 @@ import asyncio
 import os
 
 bot=Bot(co.token)
-payToken=co.payToken
 storage = MemoryStorage()
 dp=Dispatcher(bot,storage=storage)
 
 
 @dp.message_handler(commands=['reload'])
-async def get(message: types.Message):
-    
-    await SQL.last_table()
-    SQL.mama()
+async def start(message: types.Message):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
+        await SQL.last_table()
+        SQL.mama()
+        await message.reply(f"https://docs.google.com/spreadsheets/d/{co.SPREADSHEET_ID}/edit#gid=0")
 
 
 async def get_userbyid(id=None):
@@ -31,6 +32,7 @@ async def get_userbyid(id=None):
             return user.username
         except ChatNotFound:
             return "Not found"
+
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
@@ -126,7 +128,8 @@ async def cuu(callback:types.CallbackQuery):
 #server_control
 @dp.message_handler(commands=['edit'])
 async def start(message: types.Message):
-    if(message.from_user.id==1150674438):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
         txt=message.text[6:]
         txt=txt.split("\n",1)
         file=str(txt[0])
@@ -142,7 +145,8 @@ async def start(message: types.Message):
 
 @dp.message_handler(commands=['startfile'])
 async def start(message: types.Message):
-    if(message.from_user.id==1150674438):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
         file=message.text[11:]
         try:
             os.startfile(file)
@@ -151,7 +155,8 @@ async def start(message: types.Message):
 
 @dp.message_handler(commands=['delete'])
 async def start(message: types.Message):
-    if(message.from_user.id==1150674438):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
         file=message.text[8:]
         try:
             os.remove(file)
@@ -160,7 +165,8 @@ async def start(message: types.Message):
 
 @dp.message_handler(commands=['getfiles'])
 async def start(message: types.Message):
-    if(message.from_user.id==1150674438):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
         files=os.listdir()
         listing=""
         for i in range(len(files)):
@@ -172,7 +178,8 @@ async def start(message: types.Message):
 
 @dp.message_handler(commands=['readfile'])
 async def start(message: types.Message):
-    if(message.from_user.id==1150674438):
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
         file=message.text[10:]
         try:
             with open(file, 'r') as file:
@@ -182,5 +189,24 @@ async def start(message: types.Message):
             print("error at listing files")
 
 
+@dp.message_handler(commands=['add_admin'])
+async def aaad(message: types.Message):
+    user=message.from_user.id
+    if(SQL.check_admin(user)):
+        admin=message.text[11:]
+        if(not SQL.check_admin(admin)):
+            await SQL.add_admin(admin)
+            await message.reply("Додано")
+
+@dp.message_handler(commands=['remove_admin'])
+async def aaad(message: types.Message):
+    user=message.from_user.id
+    if(SQL.check_admin(user)):
+        admin=message.text[14:]
+        if(SQL.check_admin(admin)):
+            SQL.remove_admin(admin)
+            await message.reply("Видалено")
+
+        
 if __name__== '__main__':
     executor.start_polling(dp)

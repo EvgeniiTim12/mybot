@@ -1,3 +1,3 @@
-payToken='1661751239:TEST:1150674438'
-token="6062877363:AAH2j0hm1SOuS0Lejl8LQEm2JxNxT6gAM34"
-botName="Kryglik_maker_bot"
+token="6151788380:AAHs3kFVbIYd0g25kqwyN3TGl3hPfbncsuE"
+botName="Zigalik_bot"
+SPREADSHEET_ID='1wpawHPkTmqhccKS-440bS_DZHcjHX0ZIo0zfMWMI4Yk'

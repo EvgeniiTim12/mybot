@@ -1,7 +1,6 @@
 from __future__ import print_function
 import sqlite3
-import random
-import string
+import config
 import datetime
 from main import get_userbyid
 
@@ -18,6 +17,7 @@ sql=connection.cursor()
 print("connected")
 sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
+sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
 def add_user(user_id,refer_id=None):
     with sql.connection as con:
@@ -74,7 +74,7 @@ async def last_table():
             i+=1
 #########################################
 class GoogleSheet:
-    SPREADSHEET_ID = '1wpawHPkTmqhccKS-440bS_DZHcjHX0ZIo0zfMWMI4Yk'
+    SPREADSHEET_ID = config.SPREADSHEET_ID
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     service = None
 
@@ -106,17 +106,15 @@ class GoogleSheet:
             'valueInputOption': 'USER_ENTERED',
             'data': data
         }
-        result = self.service.spreadsheets().values().batchUpdate(spreadsheetId=self.SPREADSHEET_ID, body=body).execute()
+        self.service.spreadsheets().values().batchUpdate(spreadsheetId=self.SPREADSHEET_ID, body=body).execute()
         #print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
         
 def mama():
-   gs = GoogleSheet()
-   test_range = 'testlist!A1:D'
-   test_values = [
-       
-   ]
-   with sql.connection as con:
+    gs = GoogleSheet()
+    test_range = 'testlist!A1:C'
+    test_values = []
+    with sql.connection as con:
         i=0
         max=con.execute("SELECT MAX(id) FROM new_table").fetchone()[0]
         while(i<=max):
@@ -129,7 +127,31 @@ def mama():
             except TypeError:
                 pass
             i+=1 
-   gs.updateRangeValues(test_range, test_values)
+    endlist=["END","OF","TABLE"]
+    test_values.append(endlist)
+    for i in range(3):
+        endlist=["","",""]
+        test_values.append(endlist)
+    
+    gs.updateRangeValues(test_range, test_values)
+
+   
+#############
+async def add_admin(user_id):
+    with sql.connection as con:
+        con.execute("INSERT INTO 'admins' VALUES (?,?)", (user_id,str(await get_userbyid(user_id))))
+
+def check_admin(user_id):
+    with sql.connection as con:
+        result = con.execute(f"SELECT id FROM 'admins' WHERE id = {user_id}")
+        return bool(len(result.fetchall()))
+
+def remove_admin(user_id):
+    with sql.connection as con:
+        con.execute(f"DELETE FROM admins WHERE id={user_id}")
+
+
+
 
 def close():
     connection.close()
