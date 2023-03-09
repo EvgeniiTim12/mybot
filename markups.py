@@ -1,6 +1,8 @@
 from aiogram.types import ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardButton,InlineKeyboardMarkup
 import emoji
 
+empty=InlineKeyboardMarkup()
+
 markuplang=InlineKeyboardMarkup()
 button1=InlineKeyboardButton(text="English"+emoji.emojize("🇬🇧")+emoji.emojize("🇺🇸"),callback_data="eng")
 button2=InlineKeyboardButton(text="Українська"+emoji.emojize("🇺🇦"),callback_data="ukr")
@@ -27,3 +29,10 @@ menui=InlineKeyboardMarkup()
 button1=InlineKeyboardButton(text="Language/Мова"+emoji.emojize("🌐"),callback_data="lang")
 button2=InlineKeyboardButton(text="Profile"+emoji.emojize("👤"),callback_data="prof")
 menui.row(button1,button2)
+
+servmenu=InlineKeyboardMarkup()
+create=InlineKeyboardButton(text="create",callback_data="create")
+edit=InlineKeyboardButton(text="edit",callback_data="edit")
+delete=InlineKeyboardButton(text="delete",callback_data="delete")
+servmenu.row(create,edit)
+servmenu.add(delete)

