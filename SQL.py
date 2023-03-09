@@ -172,7 +172,10 @@ def remove_admin(user_id):
 
 def remove_user(user_id):
     with sql.connection as con:
-        con.execute(f"DELETE FROM users WHERE user_id={user_id}")
+        try:
+            con.execute(f"DELETE FROM users WHERE user_id={user_id}")
+        except:
+            pass
 
 
 def close():
