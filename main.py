@@ -264,8 +264,8 @@ async def aaad(message: types.Message):
     admin=message.text[13:]
     if(SQL.check_admin(user)):
         if(SQL.check_admin(admin)):
-            SQL.remove_user(admin)
-            await message.reply(trans("Видалено",SQL.get_lang(user)))
+            if(SQL.remove_user(admin)):
+                await message.reply(trans("Видалено",SQL.get_lang(user)))
 
 
 if __name__== '__main__':

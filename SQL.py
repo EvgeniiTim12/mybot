@@ -174,8 +174,9 @@ def remove_user(user_id):
     with sql.connection as con:
         try:
             con.execute(f"DELETE FROM users WHERE user_id={user_id}")
+            return True
         except:
-            pass
+            return False
 
 
 def close():
