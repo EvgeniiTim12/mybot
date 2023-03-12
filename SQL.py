@@ -19,12 +19,12 @@ sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id IN
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
-def add_user(user_id,refer_id=None):
+def add_user(user_id,datime,refer_id=None):
     with sql.connection as con:
         if(refer_id!=None):
-            con.execute("INSERT INTO users (user_id,refer_id,date,idfor) VALUES (?,?,?,?)",(user_id,refer_id,datetime.datetime.now(),user_id,))
+            con.execute("INSERT INTO users (user_id,refer_id,date,idfor) VALUES (?,?,?,?)",(user_id,refer_id,datime,user_id,))
         else:
-            con.execute("INSERT INTO users (user_id,date,idfor) VALUES (?,?,?)",(user_id,datetime.datetime.now(),user_id,))
+            con.execute("INSERT INTO users (user_id,date,idfor) VALUES (?,?,?)",(user_id,datime,user_id,))
 
 def check_reg(userid):
     with sql.connection as con:
@@ -147,7 +147,7 @@ def mama():
             except TypeError:
                 pass
             i+=1 
-    endlist=["END","OF","TABLE"]
+    endlist=["END","OF","TABLE",'.']
     test_values.append(endlist)
     for i in range(3):
         endlist=["","",""]

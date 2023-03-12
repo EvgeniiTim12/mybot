@@ -51,16 +51,16 @@ async def start(message: types.Message):
         if(refer_id!=""):
             if(str(user_id)==refer_id):
                 await message.reply(trans("Але це ж ваша ссилка!",SQL.get_lang(user_id)))
-                SQL.add_user(user_id)
+                SQL.add_user(user_id,message.date)
             else:
-                SQL.add_user(user_id,refer_id)
+                SQL.add_user(user_id,message.date,refer_id)
                 try:
                     await bot.send_message(refer_id,f"Ваша ссилка була використана @{message.from_user.username}")
                     
                 except ChatNotFound:
                     pass
         else:       
-            SQL.add_user(user_id)
+            SQL.add_user(user_id,message.date)
     await bot.send_message(user_id,trans("Привіт!",SQL.get_lang(user_id)),reply_markup=markups.menui)
 
 
