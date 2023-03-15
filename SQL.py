@@ -15,16 +15,16 @@ from google.oauth2.credentials import Credentials
 connection=sqlite3.connect("server.db")
 sql=connection.cursor()
 print("connected")
-sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card TEXT,idfor TEXT) ")
+sql.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,refer_id INTEGER,user_id INTEGER,date TEXT,refer_card TEXT,balance INTEGER,idfor TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS langue(id INTEGER,lang TEXT) ")
 sql.execute("CREATE TABLE IF NOT EXISTS admins(id INTEGER,name TEXT) ")
 
 def add_user(user_id,datime,refer_id=None):
     with sql.connection as con:
         if(refer_id!=None):
-            con.execute("INSERT INTO users (user_id,refer_id,date,idfor) VALUES (?,?,?,?)",(user_id,refer_id,datime,user_id,))
+            con.execute("INSERT INTO users (user_id,refer_id,date,idfor,balance) VALUES (?,?,?,?,?)",(user_id,refer_id,datime,user_id,0,))
         else:
-            con.execute("INSERT INTO users (user_id,date,idfor) VALUES (?,?,?)",(user_id,datime,user_id,))
+            con.execute("INSERT INTO users (user_id,date,idfor,balance) VALUES (?,?,?,?)",(user_id,datime,user_id,0,))
 
 def check_reg(userid):
     with sql.connection as con:
@@ -55,6 +55,8 @@ def update_lang(user_id,new):
     with sql.connection as con:
         con.execute(f"UPDATE langue SET lang='{new}' WHERE id={user_id}")
 
+
+#balance
 def update_card(user_id,card):
     with sql.connection as con:
         con.execute(f"UPDATE users SET refer_card='{card}' WHERE user_id={user_id}")
@@ -67,11 +69,24 @@ def get_card(user_id):
         else:
             return result
 
+def get_bal(user_id):
+    with sql.connection as con:
+        result = con.execute(f"SELECT balance FROM 'users' WHERE user_id = {user_id}").fetchone()[0]
+        if result is None:
+            return 0
+        else:
+            return int(result)
+
+def update_bal(user_id,newbal):
+    with sql.connection as con:
+        con.execute(f"UPDATE users SET balance='{newbal}' WHERE user_id={user_id}")
+
+
 
 async def last_table():
     with sql.connection as con:
         con.execute("DROP TABLE IF EXISTS new_table")
-        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card TEXT,idfor TEXT) ")
+        con.execute("CREATE TABLE IF NOT EXISTS new_table(id INTEGER PRIMARY KEY,kto_3aregal TEXT,kogo_3aregal TEXT,koli_3aregal TEXT,refer_card TEXT,balance INTEGER,idfor TEXT) ")
         i=0
         max=con.execute("SELECT MAX(id) FROM users").fetchone()[0]
         while(i<=max):
@@ -81,8 +96,9 @@ async def last_table():
                 date=con.execute(f"SELECT date FROM 'users' WHERE id = {i}").fetchone()[0]
                 card=con.execute(f"SELECT refer_card FROM 'users' WHERE id = {i}").fetchone()[0]
                 idfor=con.execute(f"SELECT idfor FROM 'users' WHERE id = {i}").fetchone()[0]
-                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card,idfor) VALUES (?,?,?,?,?)",
-                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),str(card),str(idfor),))
+                balance=con.execute(f"SELECT balance FROM 'users' WHERE id = {i}").fetchone()[0]
+                con.execute("INSERT INTO new_table (kogo_3aregal,kto_3aregal,koli_3aregal,refer_card,balance,idfor) VALUES (?,?,?,?,?,?)",
+                (str(await get_userbyid(name)),str(await get_userbyid(name_refer)),str(date),str(card),balance,str(idfor),))
             except TypeError:
                 pass
             i+=1
@@ -126,9 +142,9 @@ class GoogleSheet:
         
 def mama():
     gs = GoogleSheet()
-    test_range = 'testlist!A1:E'
+    test_range = 'testlist!A1:F'
     test_values = []
-    startlist=["kto_3aregal","kogo_3aregal","koli_3aregal","card_number","delete id"]
+    startlist=["kto_3aregal","user","koli_3aregal","card_number",'balance',"delete id"]
     test_values.append(startlist)
     with sql.connection as con:
         i=0
@@ -139,18 +155,19 @@ def mama():
                 name_refer = con.execute(f"SELECT kogo_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 date=con.execute(f"SELECT koli_3aregal FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 card=con.execute(f"SELECT refer_card FROM 'new_table' WHERE id = {i}").fetchone()[0]
+                balance=con.execute(f"SELECT balance FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 idfor=con.execute(f"SELECT idfor FROM 'new_table' WHERE id = {i}").fetchone()[0]
                 if(card is None):
                     card="None"
-                values=[name,name_refer,date,str(card),idfor]
+                values=[name,name_refer,date,str(card),balance,idfor]
                 test_values.append(values)
             except TypeError:
                 pass
             i+=1 
-    endlist=["END","OF","TABLE",'.']
+    endlist=['',"END","OF","TABLE",'','']
     test_values.append(endlist)
     for i in range(3):
-        endlist=["","",""]
+        endlist=["","","","","",""]
         test_values.append(endlist)
     
     gs.updateRangeValues(test_range, test_values)
@@ -177,7 +194,6 @@ def remove_user(user_id):
             return True
         except:
             return False
-
 
 def close():
     connection.close()

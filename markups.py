@@ -38,3 +38,8 @@ edit=InlineKeyboardButton(text="edit",callback_data="edit")
 delete=InlineKeyboardButton(text="delete",callback_data="delete")
 servmenu.row(create,edit)
 servmenu.add(delete)
+
+cbla=InlineKeyboardMarkup()
+button3=InlineKeyboardButton(text="Add balance"+emoji.emojize("◀️"),callback_data="add_bal")
+button2=InlineKeyboardButton(text="Set balance"+emoji.emojize("◀️"),callback_data="chbal")
+cbla.add(button3,button2)

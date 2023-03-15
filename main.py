@@ -20,6 +20,8 @@ dp=Dispatcher(bot,storage=storage)
 class Form(StatesGroup):
     start=State()
     card_entering=State()
+    bal_user_enter=State()
+    bal_enter_operation=State()
 
 @dp.message_handler(commands=['reload'],state="*")
 async def start(message: types.Message):
@@ -112,10 +114,12 @@ async def cuu(callback:types.CallbackQuery):
     user_id=callback.from_user.id
     if(not SQL.check_lang(user_id)):
         SQL.add_lang(user_id)
-    await callback.message.edit_text((trans("Ваша ссилка:",SQL.get_lang(user_id))+
-        f"https://t.me/{co.botName}?start={user_id}\n"
-        +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id)))
-        +"\n"+trans("Номер карти:",SQL.get_lang(user_id))+str(SQL.get_card(user_id)),reply_markup=markups.markuprof)
+    await callback.message.edit_text((trans("Ваша ссилка:",SQL.get_lang(user_id)))+
+            f"https://t.me/{co.botName}?start={user_id}\n"
+            +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id))
+            +"\n"+trans("Номер карти:",SQL.get_lang(user_id))+str(SQL.get_card(user_id))
+            +"\n"+trans("Баланс:",SQL.get_lang(user_id))+str(SQL.get_bal(user_id)),
+            reply_markup=markups.markuprof)
     await callback.answer()
 
 
@@ -136,10 +140,13 @@ async def cuu(callback:types.CallbackQuery):
         user_id=callback.from_user.id
         if(not SQL.check_lang(user_id)):
             SQL.add_lang(user_id)
-        await callback.message.edit_text((trans("Ваша ссилка:",SQL.get_lang(user_id))+
+        await callback.message.edit_text((trans("Ваша ссилка:",SQL.get_lang(user_id)))+
             f"https://t.me/{co.botName}?start={user_id}\n"
-            +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id)))
-            +"\n"+trans("Номер карти:",SQL.get_lang(user_id))+str(SQL.get_card(user_id)),reply_markup=markups.markuprof)
+            +trans("К-сть рефералов:",SQL.get_lang(user_id))+str(SQL.get_refers(user_id))
+            +"\n"+trans("Номер карти:",SQL.get_lang(user_id))+str(SQL.get_card(user_id))
+            +"\n"+trans("Баланс:",SQL.get_lang(user_id))+str(SQL.get_bal(user_id)),
+            reply_markup=markups.reloading)
+        
         await asyncio.sleep(1)
         await callback.message.edit_reply_markup(reply_markup=markups.markuprof)
         await callback.answer()
@@ -184,16 +191,6 @@ async def start(message: types.Message):
             fp.write(text)
             #await message.reply("Now:"+str(fp.read()))
 
-@dp.message_handler(commands=['startfile'],state="*")
-async def start(message: types.Message):
-    await Form.start.set()
-    admin=message.from_user.id
-    if(SQL.check_admin(admin)):
-        file=message.text[11:]
-        try:
-            os.startfile(file)
-        except:
-            print("error at starting file")
 
 @dp.message_handler(commands=['delete'],state="*")
 async def start(message: types.Message):
@@ -251,8 +248,7 @@ async def aaad(message: types.Message):
     admin=message.text[14:]
     if(admin != user):
         if(SQL.check_admin(user)):
-
-            if(SQL.check_admin(admin)):
+            if(SQL.check_admin(admin) and str(user) != str(admin)):
                 SQL.remove_admin(admin)
                 await message.reply(trans("Видалено",SQL.get_lang(user)))
 
@@ -266,6 +262,25 @@ async def aaad(message: types.Message):
         if(SQL.check_admin(admin)):
             if(SQL.remove_user(admin)):
                 await message.reply(trans("Видалено",SQL.get_lang(user)))
+
+    
+@dp.message_handler(commands=['cbal'],state="*")
+async def start(message: types.Message):
+    await Form.start.set()
+    admin=message.from_user.id
+    if(SQL.check_admin(admin)):
+        txt=message.text[6:]
+        txt=txt.split(" ")
+        try:
+            user=str(txt[0])
+            text=str(txt[1])
+            if(text.isdigit() & user.isdigit()):
+                SQL.update_bal(user,text)
+                await message.reply(f"Тепер у @{await get_userbyid(int(user))} баланс:{text}")
+            else:
+                await message.reply("Ошибка ввода")
+        except:
+            await message.reply("Ошибка ввода")
 
 
 if __name__== '__main__':

@@ -12,7 +12,9 @@ transl={
         "Видалено":"Deleted",
         "Скасовано":"Canceled",
         "Додано":"Added",
-        "Номер карти:":"Card number:"
+        "Номер карти:":"Card number:",
+        "Баланс:":"Balance:",
+        "Виберіть операцію":"Choose operation"
 
     }
 }
