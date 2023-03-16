@@ -238,7 +238,7 @@ async def aaad(message: types.Message):
         admin=message.text[11:]
         if(not SQL.check_admin(admin)):
             await SQL.add_admin(admin)
-            await message.reply(trans("Додано",SQL.get_lang(user)))
+            await message.reply(trans("Додано",SQL.get_lang(user))+" @"+str(await get_userbyid(admin)))
 
 
 @dp.message_handler(commands=['remove_admin'],state="*")
@@ -250,7 +250,7 @@ async def aaad(message: types.Message):
         if(SQL.check_admin(user)):
             if(SQL.check_admin(admin) and str(user) != str(admin)):
                 SQL.remove_admin(admin)
-                await message.reply(trans("Видалено",SQL.get_lang(user)))
+                await message.reply(trans("Видалено",SQL.get_lang(user))+" @"+str(await get_userbyid(admin)))
 
 
 @dp.message_handler(commands=['remove_user'],state="*")
@@ -261,7 +261,7 @@ async def aaad(message: types.Message):
     if(SQL.check_admin(user)):
         if(SQL.check_admin(admin)):
             if(SQL.remove_user(admin)):
-                await message.reply(trans("Видалено",SQL.get_lang(user)))
+                await message.reply(trans("Видалено",SQL.get_lang(user)))+" @"+str(await get_userbyid(admin))
 
     
 @dp.message_handler(commands=['cbal'],state="*")
